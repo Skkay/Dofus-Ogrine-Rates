@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">    </head>
+        <script src="https://code.highcharts.com/stock/highstock.js"></script>
+        <script src="https://code.highcharts.com/modules/data.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>  
+        <title>Ogrine v2</title>
+    <body class="bg-light">
+        <div class="p-4">
+            <h1>Cours de l'Ogrine</h1>
+            <p>Récupération et affichage du prix journalier de l'Ogrine depuis le 24 mars 2019 jusqu'à aujourd'hui.</p>
+            <hr class="my-4">
+            <div id="container" style="width: 100%; height: 550px;" class="border"></div>
+            <div class="d-md-flex my-4">
+              <div class="card border-dark rounded-0 w-100 my-3">
+                  <div class="card-header text-center">
+                    Moyenne des 7 derniers jours (totale)
+                  </div>
+                  <div class="card-body d-flex align-items-center justify-content-center">
+                      <h5 class="card-title" id="averageRate"></h5>
+                  </div>
+              </div>
+                <div class="card border-dark rounded-0 mx-md-4 my-4 my-md-0 w-100">
+                    <div class="card-header text-center">
+                      Taux du jour
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <h3 class="card-title" id="currentRate"></h3>
+                    </div>
+                </div>
+                <div class="card border-dark rounded-0 w-100 my-3">
+                    <div class="card-header text-center">
+                      Évolution
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <h5 class="card-title" id="rateChange"></h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            fetch('rates.csv').then(response => response.text()).then(rates => {
+                const rows = rates.trim().split('\n');
+
+                // Average all time
+                let sum = 0;
+                for (let index = 0; index < rows.length; index++) {
+                    const values = rows[index].trim().split(',');
+                    sum += parseFloat(values[1]);
+                }
+                const averageAllTime = sum / rows.length;
+
+                // Average last 7 days
+                sum = 0;
+                for (let index = 0; index < 7; index++) {
+                    const values = rows[rows.length - index - 1].trim().split(',');
+                    sum += parseFloat(values[1]);
+                }
+                const averageLastDays = sum / 7;
+
+                const previousRate = rows[rows.length - 2].trim().split(',')[1];
+                const currentRate = rows[rows.length - 1].trim().split(',')[1];
+                const rateChange = currentRate - previousRate;
+                const rateChangePercent = (currentRate - previousRate) / previousRate * 100;
+
+                document.getElementById("averageRate").textContent = `${averageLastDays.toFixed(1)} Kamas (${averageAllTime.toFixed(1)})`;
+                document.getElementById("currentRate").textContent = `${currentRate} Kamas`;
+                document.getElementById("rateChange").textContent = `${rateChange > 0 ? '+' : ''}${rateChange.toFixed(1)} Kamas (${rateChange > 0 ? '+' : ''}${rateChangePercent.toFixed(2)}%)`;
+
+                const chart = Highcharts.stockChart('container', {
+                    data: {
+                        csv: rates,
+                    },
+                    rangeSelector: {
+                        floating: true,
+                        verticalAlign: 'top',
+                        selected: 0,
+                    },
+                    tooltip: {
+                        formatter: function () {
+                            const date = new Date(this.x);
+                            return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}: ${this.y} Kamas`;
+                        },
+                    },
+                    xAxis: {
+                        title: {
+                            text: '<b>Date</b>'
+                        },
+                        type: 'datetime',
+                    },
+                    yAxis: {
+                        title: {
+                            text: '<b>Kamas</b>'
+                        },
+                        opposite: false,
+                        plotLines: [{
+                            color: '#000000',
+                            width: 1,
+                            value: averageAllTime,
+                        }, {
+                            color: '#C3303E',
+                            width: 1,
+                            value: averageLastDays,
+                        }],
+                    },
+                });
+            });
+        </script>
+    </body>
+</html>
