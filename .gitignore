@@ -1,1 +1,7 @@
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+
 rates.csv
+config.yaml
