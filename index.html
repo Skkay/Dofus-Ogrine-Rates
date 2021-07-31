@@ -66,7 +66,7 @@
                 const previousRate = rows[rows.length - 2].trim().split(',')[1];
                 const currentRate = rows[rows.length - 1].trim().split(',')[1];
                 const rateChange = currentRate - previousRate;
-                const rateChangePercent = (currentRate - previousRate) / previousRate * 100;
+                const rateChangePercent = rateChange / previousRate * 100;
 
                 document.getElementById("averageRate").textContent = `${averageLastDays.toFixed(1)} Kamas (${averageAllTime.toFixed(1)})`;
                 document.getElementById("currentRate").textContent = `${currentRate} Kamas`;
