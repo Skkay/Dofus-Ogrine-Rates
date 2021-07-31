@@ -6,6 +6,30 @@ import logging
 import requests
 import yaml
 
+def main():
+    with open("config.yaml") as f:
+        config = yaml.safe_load(f)
+
+    logging.basicConfig(filename=config['log_path'], encoding='utf-8', level=logging.DEBUG, format='[%(asctime)s.%(msecs)03d] %(levelname)s:%(module)s:%(funcName)s => %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+
+    data = getLatestOgrineValues()
+    timestamp = data['timestamp']
+    localeDate = datetime.fromtimestamp(int(timestamp)/1000).strftime('%d %B %Y')
+    currentRate = data['currentRate']
+    rateChange = data['currentRate'] - data['previousRate']
+    rateChangePercent = rateChange / data['previousRate'] * 100
+
+    writeToCsv(config['csv_path'], timestamp, currentRate)
+
+    if rateChangePercent >= 0:
+        message = f"**{localeDate}** : 1 Ogrine = **{currentRate}** Kama{'s' if currentRate >= 2 else ''}. *(+{rateChange} Kama{'s' if rateChange >= 2 else ''}, +{round(rateChangePercent, 2)}%)*"
+    else:
+        message = f"**{localeDate}** : 1 Ogrine = **{currentRate}** Kama{'s' if currentRate >= 2 else ''}. *({rateChange} Kama{'s' if abs(rateChange) >= 2 else ''}, {round(rateChangePercent, 2)}%)*"
+
+    for webhook in config['webhooks']:
+        sendToDiscord(webhook, message)
+
+
 def getLatestOgrineValues():
     url = "https://www.dofus.com/fr/achat-kamas/cours-kama-ogrines"
     headers = { 'User-Agent': 'Mozilla/5.0' }
@@ -59,24 +83,5 @@ def sendToDiscord(url, message):
         logging.error(f'RequestException: {str(e)}')
 
 
-with open("config.yaml") as f:
-    config = yaml.safe_load(f)
-
-logging.basicConfig(filename=config['log_path'], encoding='utf-8', level=logging.DEBUG, format='[%(asctime)s.%(msecs)03d] %(levelname)s:%(module)s:%(funcName)s => %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-
-data = getLatestOgrineValues()
-timestamp = data['timestamp']
-localeDate = datetime.fromtimestamp(int(timestamp)/1000).strftime('%d %B %Y')
-currentRate = data['currentRate']
-rateChange = data['currentRate'] - data['previousRate']
-rateChangePercent = rateChange / data['previousRate'] * 100
-
-writeToCsv(config['csv_path'], timestamp, currentRate)
-
-if rateChangePercent >= 0:
-    message = f"**{localeDate}** : 1 Ogrine = **{currentRate}** Kama{'s' if currentRate >= 2 else ''}. *(+{rateChange} Kama{'s' if rateChange >= 2 else ''}, +{round(rateChangePercent, 2)}%)*"
-else:
-    message = f"**{localeDate}** : 1 Ogrine = **{currentRate}** Kama{'s' if currentRate >= 2 else ''}. *({rateChange} Kama{'s' if abs(rateChange) >= 2 else ''}, {round(rateChangePercent, 2)}%)*"
-
-for webhook in config['webhooks']:
-    sendToDiscord(webhook, message)
+if __name__ == "__main__":
+    main()
