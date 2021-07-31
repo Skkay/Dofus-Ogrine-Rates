@@ -3,5 +3,4 @@ __pycache__/
 *$py.class
 venv/
 
-rates.csv
 config.yaml
