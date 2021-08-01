@@ -22,9 +22,9 @@ def main():
     writeToCsv(config['csv_path'], timestamp, currentRate)
 
     if rateChangePercent >= 0:
-        message = f"**{localeDate}** : 1 Ogrine = **{currentRate}** Kama{'s' if currentRate >= 2 else ''}. *(+{rateChange} Kama{'s' if rateChange >= 2 else ''}, +{round(rateChangePercent, 2)}%)*"
+        message = f"**{localeDate}** : 1 Ogrine = **{currentRate}** Kama{'s' if currentRate >= 2 else ''}. *(+{round(rateChange, 1)} Kama{'s' if rateChange >= 2 else ''}, +{round(rateChangePercent, 2)}%)*"
     else:
-        message = f"**{localeDate}** : 1 Ogrine = **{currentRate}** Kama{'s' if currentRate >= 2 else ''}. *({rateChange} Kama{'s' if abs(rateChange) >= 2 else ''}, {round(rateChangePercent, 2)}%)*"
+        message = f"**{localeDate}** : 1 Ogrine = **{currentRate}** Kama{'s' if currentRate >= 2 else ''}. *({round(rateChange, 1)} Kama{'s' if abs(rateChange) >= 2 else ''}, {round(rateChangePercent, 2)}%)*"
 
     for webhook in config['webhooks']:
         sendToDiscord(webhook, message)
