@@ -48,6 +48,10 @@ def getLatestOgrineValues():
                 rates = JSONDecoder(object_pairs_hook=OrderedDict).decode(str_rates[begin:end+1])
                 data = {'timestamp': list(rates)[-2], 'currentRate': rates[list(rates)[-2]], 'previousRate': rates[list(rates)[-3]]}
 
+                if data['currentRate'] == None:
+                    logging.error('No value was found for the current rate (null)')
+                    raise Exception('No value was found for the current rate (null)')
+
                 logging.info(f'Successfully fetch Ogrine values: {data=}')
                 return data
 
