@@ -49,7 +49,7 @@
 
                 // Average all time
                 let sum = 0;
-                for (let index = 0; index < rows.length; index++) {
+                for (let index = 1; index < rows.length; index++) {
                     const values = rows[index].trim().split(',');
                     sum += parseFloat(values[1]);
                 }
