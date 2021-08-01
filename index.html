@@ -72,6 +72,20 @@
                 document.getElementById("currentRate").textContent = `${currentRate} Kamas`;
                 document.getElementById("rateChange").textContent = `${rateChange > 0 ? '+' : ''}${rateChange.toFixed(1)} Kamas (${rateChange > 0 ? '+' : ''}${rateChangePercent.toFixed(2)}%)`;
 
+                const plotLineAverageAllTime = {
+                    id: 'pl_averageAllTime',
+                    color: '#000000',
+                    width: 1,
+                    zIndex: 1,
+                    value: averageAllTime,
+                };
+                const plotLineAverageLastDays = {
+                    id: 'pl_averageLastDays',
+                    color: '#C3303E',
+                    width: 1,
+                    zIndex: 1,
+                    value: averageLastDays,
+                };
                 const chart = Highcharts.stockChart('container', {
                     data: {
                         csv: rates,
@@ -98,18 +112,38 @@
                             text: '<b>Kamas</b>'
                         },
                         opposite: false,
-                        plotLines: [{
-                            color: '#000000',
-                            width: 1,
-                            zIndex: 1,
-                            value: averageAllTime,
-                        }, {
-                            color: '#C3303E',
-                            width: 1,
-                            zIndex: 1,
-                            value: averageLastDays,
-                        }],
+                        plotLines: [plotLineAverageAllTime, plotLineAverageLastDays],
                     },
+                    legend: {
+                        enabled: true,
+                    },
+                    series: [{
+                        // Default data defined in chart.data.csv
+                    }, {
+                        name: 'Moyenne (totale)',
+                        color: plotLineAverageAllTime.color,
+                        events: {
+                            legendItemClick: function() {
+                                if (this.visible) {
+                                    this.yAxis.removePlotLine(plotLineAverageAllTime.id);
+                                } else {
+                                    this.yAxis.addPlotLine(plotLineAverageAllTime);
+                                }
+                            },
+                        },
+                    }, {
+                        name: 'Moyenne (7 derniers jours)',
+                        color: plotLineAverageLastDays.color,
+                        events: {
+                            legendItemClick: function() {
+                                if (this.visible) {
+                                    this.yAxis.removePlotLine(plotLineAverageLastDays.id);
+                                } else {
+                                    this.yAxis.addPlotLine(plotLineAverageLastDays);
+                                }
+                            },
+                        },
+                    }]
                 });
             });
         </script>
