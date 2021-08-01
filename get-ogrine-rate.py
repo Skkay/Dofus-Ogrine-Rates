@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from collections import OrderedDict
 from datetime import datetime
 from json import JSONDecoder
+import locale
 import logging
 import requests
 import yaml
@@ -10,6 +11,7 @@ def main():
     with open("config.yaml") as f:
         config = yaml.safe_load(f)
 
+    locale.setlocale(locale.LC_TIME, "fr_FR.utf8")
     logging.basicConfig(filename=config['log_path'], encoding='utf-8', level=logging.DEBUG, format='[%(asctime)s.%(msecs)03d] %(levelname)s:%(module)s:%(funcName)s => %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
     data = getLatestOgrineValues()
