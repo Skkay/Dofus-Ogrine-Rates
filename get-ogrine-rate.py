@@ -15,7 +15,7 @@ def main():
     logging.basicConfig(filename=config['log_path'], encoding='utf-8', level=logging.DEBUG, format='[%(asctime)s.%(msecs)03d] %(levelname)s:%(module)s:%(funcName)s => %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
     data = getLatestOgrineValues()
-    timestamp = data['timestamp']
+    timestamp = int(data['timestamp']) + 86400000
     localeDate = datetime.fromtimestamp(int(timestamp)/1000).strftime('%d %B %Y')
     currentRate = data['currentRate']
     rateChange = data['currentRate'] - data['previousRate']
