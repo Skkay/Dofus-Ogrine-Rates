@@ -4,11 +4,14 @@ from datetime import datetime
 from json import JSONDecoder
 import locale
 import logging
+import os
 import requests
 import yaml
 
 def main():
-    with open("config.yaml") as f:
+    dirname = os.path.dirname(__file__)
+    
+    with open(os.path.join(dirname, "config.yaml")) as f:
         config = yaml.safe_load(f)
 
     locale.setlocale(locale.LC_TIME, "fr_FR.utf8")
